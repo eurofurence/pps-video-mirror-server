@@ -1,0 +1,3 @@
+Copyright 2017-2021 NVIDIA Corporation.  All rights reserved.
+
+See https://github.com/NVIDIA/video-sdk-samples/blob/master/Samples/NvCodec/NvEncoder/NvEncoder.cpp for the original files.

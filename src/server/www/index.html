@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PPS Video Mirror</title>
+</head>
+<body>
+    <button id="connectButton">Connect</button>
+
+    <div id="videobox">
+        <h3>Video</h3>
+        <video id="videostream" width="1920" height="1080" playsinline style="border: 1px solid black;"></video>
+    </div>
+    <div id="receivebox">
+        <h3>Incoming:</h3>
+    </div>
+
+    <script>
+
+        var connectionIndex = 10;
+        var rtc = undefined;
+        var dc = undefined;
+
+        async function getOffer() {
+            var xhr = new XMLHttpRequest();
+            return new Promise(function (resolve, reject) {
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4) {
+                        if (xhr.status >= 300) {
+                            reject("Error, status code = " + xhr.status)
+                        } else {
+                            var json = JSON.parse(xhr.responseText);
+                            resolve(json);
+                            connectionIndex = json["index"];
+                            console.log("Connection Index: " + connectionIndex);
+                        }
+                    }
+                }
+                xhr.open('GET', '/offer?authtoken=PPSVideoMirror', true);
+                console.log("Sending getOffer() GET");
+                xhr.send();
+            });
+        }
+
+        async function sendAnswer(answer) {
+            var xhr = new XMLHttpRequest();
+            return new Promise(function (resolve, reject) {
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4) {
+                        if (xhr.status >= 300) {
+                            reject("Error, status code = " + xhr.status)
+                        } else {
+                            resolve(xhr.responseText);
+                        }
+                    }
+                }
+                xhr.open('POST', '/answer?connectionIndex=' + connectionIndex);
+                xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                console.log("Sending sendAnswer() POST");
+                xhr.send(answer);
+            });
+        }
+
+        document.getElementById('connectButton').addEventListener('click', async () => {
+
+            console.log("Getting offer");
+            let offer = await getOffer();
+            console.log("Got offer, preparing answer");
+
+            rtc = new RTCPeerConnection({
+                // Recommended for libdatachannel
+                bundlePolicy: "max-bundle",
+                offerToReceiveVideo: true
+            });
+
+            rtc.onicegatheringstatechange = (state) => {
+                if (rtc.iceGatheringState === 'complete') {
+                    // We only want to provide an answer once all of our candidates have been added to the SDP.
+                    let answer = rtc.localDescription;
+                    console.log("Sending answer");
+                    sendAnswer(JSON.stringify({ "type": answer.type, sdp: answer.sdp }));
+                }
+            }
+
+            rtc.ondatachannel = function (ev) {
+                console.log('Data channel is created!');
+                ev.channel.onopen = function () {
+                    console.log('Data channel is open and ready to be used.');
+                    console.log('Label: ' + ev.channel.label);
+                };
+
+                ev.channel.onmessage = function (event) {
+                    var el = document.createElement("p");
+                    var txtNode = document.createTextNode(event.data);
+
+                    el.appendChild(txtNode);
+                    document.getElementById("receivebox").appendChild(el);
+                }
+
+                dc = ev.channel;
+            };
+
+            rtc.onconnectionstatechange = function (event) {
+                console.log("RTC connection state changed to: " + rtc.connectionState);
+            }
+
+            rtc.ontrack = function (event) {
+                console.log("OnTrack, adding videostream");
+                document.getElementById("videostream").srcObject = event.streams[0];
+                document.getElementById("videostream").play();
+            };
+
+            console.log("Setting remote description");
+            await rtc.setRemoteDescription(offer);
+            console.log("done");
+
+            console.log("Creating answer");
+            let answer = await rtc.createAnswer();
+
+            console.log("Setting local description");
+            await rtc.setLocalDescription(answer);
+            console.log("done");
+
+        });
+    </script>
+
+</body>
+</html>

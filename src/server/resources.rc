@@ -1,0 +1,33 @@
+
+#include "winres.h"
+#include "version.h"
+
+
+#ifndef DEBUG
+#define VER_DEBUG                   0
+#else
+#define VER_DEBUG                   VS_FF_DEBUG
+#endif
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION     APP_VERSION_NUMBER
+PRODUCTVERSION  APP_VERSION_NUMBER
+FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
+FILEFLAGS       (VER_DEBUG)
+FILEOS          VOS_NT_WINDOWS32
+FILETYPE        VFT_DLL
+FILESUBTYPE     VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904E4"
+        BEGIN
+            VALUE "CompanyName",      APP_COMPANY
+            VALUE "FileDescription",  APP_NAME
+            VALUE "FileVersion",      APP_VERSION_NAME
+            VALUE "InternalName",     APP_NAME
+            VALUE "ProductName",      APP_NAME
+            VALUE "ProductVersion",   APP_VERSION_NAME
+        END
+    END
+END

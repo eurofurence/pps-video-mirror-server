@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WindowsPerformanceRecorder Version="1.0" Author="Eurofurence.org" Copyright="Eurofurence.org" Company="Eurofurence e.V.">
+  <Profiles>
+    <EventCollector Id="EventCollector_PPSVideoMirrorProfiling" Name="PPSVideoMirrorProfilingCollector">
+      <BufferSize Value="1020" />
+      <Buffers Value="100" />
+    </EventCollector>
+
+    <EventProvider Id="Eurofurence.PPS.VideoMirrorServer" Name="57C88543-4F97-48BB-9206-3FE1A3BE2220" />
+    <EventProvider Id="Microsoft-Windows-TCPIP" Name="2F07E2EE-15DB-40F1-90EF-9D7BA282188A" Level="5" NonPagedMemory="true">
+      <Keywords>
+        <Keyword Value="0x0000000300000000" />
+      </Keywords>
+    </EventProvider>
+    <EventProvider Id="Microsoft-Windows-Winsock-AFD" Name="E53C6823-7BB8-44BB-90DC-3F86090D48A6" Level="4" NonPagedMemory="true">
+      <Keywords>
+        <Keyword Value="0x40" /><!--AFD_KW_RIO-->
+      </Keywords>
+    </EventProvider>
+
+    <Profile Id="PPSVideoMirrorProfiling.Verbose.File" Name="PPSVideoMirrorProfiling" Description="PPSVideoMirrorProfiling" LoggingMode="File" DetailLevel="Verbose">
+      <Collectors>
+        <EventCollectorId Value="EventCollector_PPSVideoMirrorProfiling">
+          <EventProviders>
+            <EventProviderId Value="Eurofurence.PPS.VideoMirrorServer" />
+            <EventProviderId Value="Microsoft-Windows-TCPIP" />
+            <EventProviderId Value="Microsoft-Windows-Winsock-AFD" />
+          </EventProviders>
+        </EventCollectorId>
+      </Collectors>
+    </Profile>
+  </Profiles>
+</WindowsPerformanceRecorder>

@@ -1,0 +1,10 @@
+﻿---
+BasedOnStyle: Microsoft
+AlignTrailingComments: 'true'
+BreakBeforeBraces: Allman
+ColumnLimit: '200'
+PointerAlignment: Left
+SortIncludes: 'true'
+SortUsingDeclarations: 'true'
+
+...
